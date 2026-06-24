@@ -160,7 +160,6 @@ function gameReducer(state, action) {
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const { socket, isConnected, hasEverConnected, attemptCount, emit, on, off } = useSocket();
-  const hasAttemptedRejoin = useRef(false);
   const [isRejoining, setIsRejoining] = useState(false);
 
   // ── Socket Event Listeners ──────────────────────────────────
@@ -241,6 +240,9 @@ export function GameProvider({ children }) {
       'kicked': () => {
         dispatch({ type: 'KICKED' });
       },
+      'rejoin-failed': () => {
+        dispatch({ type: 'REJOIN_FAILED' });
+      },
       'error': (data) => {
         dispatch({ type: 'SET_TOAST', payload: { type: 'error', message: data.message } });
       },
@@ -261,9 +263,7 @@ export function GameProvider({ children }) {
   // ── Auto-rejoin on connect ──────────────────────────────────
   useEffect(() => {
     if (!isConnected) return;
-    if (hasAttemptedRejoin.current) return;
 
-    hasAttemptedRejoin.current = true;
     const session = loadSession();
     if (session) {
       setIsRejoining(true);

@@ -196,6 +196,13 @@ export class GameService {
       return null;
     }
 
+    // If the player already reconnected on a NEW socket, their player.socketId won't match this disconnecting socketId.
+    // In that case, DO NOT mark them offline!
+    if (player.socketId !== socketId) {
+      this.socketToPlayer.delete(socketId);
+      return null;
+    }
+
     player.isOnline = false;
     player.socketId = null;
     this.socketToPlayer.delete(socketId);
