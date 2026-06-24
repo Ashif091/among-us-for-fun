@@ -220,35 +220,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.roomCode).emit('config-updated', { room: result });
   }
 
-  @SubscribeMessage('change-room-code')
-  async handleChangeRoomCode(
-    @MessageBody() data: ChangeRoomCodeDto,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const result = this.gameService.changeRoomCode(
-      data.roomCode,
-      data.newRoomCode,
-      client.id,
-    );
 
-    if ('error' in result) {
-      client.emit('error', { message: result.error });
-      return;
-    }
-
-    // Backend: move all connected sockets from the old room code to the new room code channel
-    const clients = await this.server.in(result.oldCode).fetchSockets();
-    for (const c of clients) {
-      c.join(result.room.code);
-      c.leave(result.oldCode);
-    }
-
-    // Broadcast change-room-code event to the new channel
-    this.server.to(result.room.code).emit('room-code-changed', {
-      room: result.room,
-      oldCode: result.oldCode,
-    });
-  }
 
   // ─── Game Flow ────────────────────────────────────────────────
 

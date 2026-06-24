@@ -243,58 +243,6 @@ export class GameService {
     return this.serializeRoom(room);
   }
 
-  /** Change room code (host only) */
-  changeRoomCode(
-    roomCode: string,
-    newRoomCode: string,
-    socketId: string,
-  ): { room: RoomData; oldCode: string } | { error: string } {
-    const oldCode = roomCode.toUpperCase().trim();
-    const newCode = newRoomCode.toUpperCase().trim();
-
-    if (!newCode || newCode.length < 3 || newCode.length > 15) {
-      return { error: 'Room code must be between 3 and 15 characters.' };
-    }
-
-    if (!/^[A-Z0-9]+$/.test(newCode)) {
-      return { error: 'Room code must only contain letters and numbers.' };
-    }
-
-    const room = this.rooms.get(oldCode);
-    if (!room) return { error: 'Room not found.' };
-
-    const mapping = this.socketToPlayer.get(socketId);
-    if (!mapping || room.hostId !== mapping.playerId) {
-      return { error: 'Only the host can change the room code.' };
-    }
-
-    if (room.state !== 'lobby') {
-      return { error: 'Can only change the room code in the lobby.' };
-    }
-
-    if (oldCode === newCode) {
-      return { error: 'New room code is the same as the current one.' };
-    }
-
-    if (this.rooms.has(newCode)) {
-      return { error: 'This room code is already in use.' };
-    }
-
-    // Update room key in mapping
-    this.rooms.delete(oldCode);
-    room.code = newCode;
-    this.rooms.set(newCode, room);
-
-    // Update socket mappings for all players in the room
-    for (const [playerId, player] of room.players) {
-      if (player.socketId) {
-        this.socketToPlayer.set(player.socketId, { roomCode: newCode, playerId });
-      }
-    }
-
-    this.logger.log(`Room code changed from ${oldCode} to ${newCode}`);
-    return { room: this.serializeRoom(room), oldCode };
-  }
 
   /** Get available categories */
   getCategories(): string[] {

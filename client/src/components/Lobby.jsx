@@ -8,11 +8,9 @@ import './Lobby.css';
 export default function Lobby() {
   const {
     room, isHost, playerId, categories,
-    updateConfig, changeRoomCode, startGame, kickPlayer, leaveRoom,
+    updateConfig, startGame, kickPlayer, leaveRoom,
   } = useGame();
   const [copied, setCopied] = useState(false);
-  const [isEditingCode, setIsEditingCode] = useState(false);
-  const [newCodeVal, setNewCodeVal] = useState(room?.code || '');
 
   if (!room) return null;
 
@@ -53,69 +51,16 @@ export default function Lobby() {
         </div>
 
         {/* Room Code */}
-        {isHost && isEditingCode ? (
-          <div className="room-code-edit-form glass-card animate-scale-up">
-            <div className="input-group">
-              <label className="input-label" htmlFor="new-room-code-input">Customize Room Code</label>
-              <div className="room-code-edit-row">
-                <input
-                  id="new-room-code-input"
-                  type="text"
-                  className="input room-code-input"
-                  value={newCodeVal}
-                  onChange={(e) => setNewCodeVal(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15))}
-                  placeholder="CUSTOMCODE"
-                  autoFocus
-                />
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    const cleanCode = newCodeVal.trim().toUpperCase();
-                    if (cleanCode.length >= 3 && cleanCode.length <= 15) {
-                      changeRoomCode(cleanCode);
-                      setIsEditingCode(false);
-                    }
-                  }}
-                  disabled={newCodeVal.trim().length < 3 || newCodeVal.trim().length > 15}
-                >
-                  Save
-                </button>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    setNewCodeVal(room.code);
-                    setIsEditingCode(false);
-                  }}
-                >
-                  Cancel
-                </button>
+        <div className="room-code-container">
+          <div className="room-code-display animate-fade-in" onClick={handleCopyCode} id="copy-room-code">
+            <div>
+              <div className="room-code-text">{room.code}</div>
+              <div className="room-code-copy">
+                {copied ? '✅ Copied!' : '📋 Tap to copy room code'}
               </div>
             </div>
           </div>
-        ) : (
-          <div className="room-code-container">
-            <div className="room-code-display animate-fade-in" onClick={handleCopyCode} id="copy-room-code">
-              <div>
-                <div className="room-code-text">{room.code}</div>
-                <div className="room-code-copy">
-                  {copied ? '✅ Copied!' : '📋 Tap to copy room code'}
-                </div>
-              </div>
-            </div>
-            {isHost && (
-              <button
-                className="btn btn-ghost btn-sm edit-room-code-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setNewCodeVal(room.code);
-                  setIsEditingCode(true);
-                }}
-              >
-                ✏️ Edit Code
-              </button>
-            )}
-          </div>
-        )}
+        </div>
 
         {/* Category Selector (host only) */}
         {isHost && (

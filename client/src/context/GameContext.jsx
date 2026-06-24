@@ -81,8 +81,6 @@ function gameReducer(state, action) {
     case 'CONFIG_UPDATED':
       return { ...state, room: action.payload.room };
 
-    case 'ROOM_CODE_CHANGED':
-      return { ...state, room: action.payload.room };
 
     case 'GAME_STARTED':
       return {
@@ -219,11 +217,7 @@ export function GameProvider({ children }) {
       'config-updated': (data) => {
         dispatch({ type: 'CONFIG_UPDATED', payload: data });
       },
-      'room-code-changed': (data) => {
-        dispatch({ type: 'ROOM_CODE_CHANGED', payload: data });
-        saveSession(state.playerId, state.playerName || '', data.room.code);
-        dispatch({ type: 'SET_TOAST', payload: { type: 'success', message: `Room code changed to: ${data.room.code}` } });
-      },
+
       'game-started': (data) => {
         dispatch({ type: 'GAME_STARTED', payload: data });
       },
@@ -297,11 +291,6 @@ export function GameProvider({ children }) {
     }
   }, [emit, state.room]);
 
-  const changeRoomCode = useCallback((newRoomCode) => {
-    if (state.room) {
-      emit('change-room-code', { roomCode: state.room.code, newRoomCode });
-    }
-  }, [emit, state.room]);
 
   const startGame = useCallback(() => {
     if (state.room) {
@@ -366,7 +355,6 @@ export function GameProvider({ children }) {
     createRoom,
     joinRoom,
     updateConfig,
-    changeRoomCode,
     startGame,
     startVoting,
     confirmRead,
