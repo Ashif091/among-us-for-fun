@@ -169,11 +169,13 @@ export function GameProvider({ children }) {
     const handlers = {
       'room-created': (data) => {
         dispatch({ type: 'ROOM_CREATED', payload: data });
-        saveSession(data.playerId, state.playerName || '', data.room.code);
+        const pName = data.room.players.find((p) => p.id === data.playerId)?.name || state.playerName || '';
+        saveSession(data.playerId, pName, data.room.code);
       },
       'room-joined': (data) => {
         dispatch({ type: 'ROOM_JOINED', payload: data });
-        saveSession(data.playerId, state.playerName || '', data.room.code);
+        const pName = data.room.players.find((p) => p.id === data.playerId)?.name || state.playerName || '';
+        saveSession(data.playerId, pName, data.room.code);
       },
       'room-rejoined': (data) => {
         dispatch({ type: 'ROOM_REJOINED', payload: data });
@@ -273,8 +275,8 @@ export function GameProvider({ children }) {
         playerName: session.playerName,
         roomCode: session.roomCode,
       });
-      // Timeout fallback
-      setTimeout(() => setIsRejoining(false), 5000);
+      // Timeout fallback for slow mobile networks
+      setTimeout(() => setIsRejoining(false), 15000);
     }
   }, [isConnected, emit]);
 
