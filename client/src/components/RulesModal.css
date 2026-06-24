@@ -1,0 +1,61 @@
+/* ─── Rules Modal ────────────────────────────────────────────── */
+.rules-trigger {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  z-index: 50;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border) !important;
+  font-size: 1.2rem !important;
+}
+
+.rules-modal {
+  position: relative;
+  padding: var(--space-xl) !important;
+}
+
+.rules-section {
+  margin-bottom: var(--space-lg);
+}
+
+.rules-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+.rules-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.rules-list {
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.rules-list li {
+  margin-bottom: 2px;
+}
+
+.rules-score-block {
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.rules-score-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}

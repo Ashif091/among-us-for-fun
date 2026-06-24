@@ -1,0 +1,81 @@
+/* ─── ScoreBoard ─────────────────────────────────────────────── */
+.scoreboard {
+  width: 100%;
+  padding: var(--space-lg);
+}
+
+.scoreboard-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.scoreboard-icon {
+  font-size: 1.3rem;
+}
+
+.scoreboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Compact scoreboard */
+.scoreboard-compact {
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+.scoreboard-compact-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scoreboard-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scoreboard-compact-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.scoreboard-compact-self {
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.scoreboard-rank {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  width: 24px;
+}
+
+.scoreboard-name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scoreboard-score {
+  font-weight: 700;
+  font-size: 0.9rem;
+}

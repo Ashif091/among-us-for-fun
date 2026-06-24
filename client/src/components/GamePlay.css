@@ -1,0 +1,117 @@
+/* ─── GamePlay ───────────────────────────────────────────────── */
+.gameplay-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.gameplay-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+/* Reveal Card */
+.gameplay-reveal {
+  padding: var(--space-2xl) var(--space-xl);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.gameplay-reveal-imposter {
+  border-color: var(--color-danger) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(233, 69, 96, 0.1) 0%,
+    rgba(83, 52, 131, 0.1) 100%
+  ) !important;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.gameplay-reveal-word {
+  border-color: rgba(22, 199, 154, 0.3) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(22, 199, 154, 0.08) 0%,
+    rgba(74, 158, 255, 0.08) 100%
+  ) !important;
+}
+
+/* Imposter reveal */
+.gameplay-imposter-icon {
+  font-size: 3rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.gameplay-imposter-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.gameplay-imposter-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-danger);
+  text-shadow: 0 0 30px var(--color-danger-glow), 0 0 60px var(--color-danger-glow);
+  animation: imposterPulse 2s ease-in-out infinite;
+  letter-spacing: 0.1em;
+}
+
+.gameplay-imposter-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+  max-width: 280px;
+}
+
+/* Word reveal */
+.gameplay-word-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.gameplay-word {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--color-success), var(--color-info));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: capitalize;
+}
+
+.gameplay-word-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+}
+
+/* Instructions */
+.gameplay-instructions {
+  padding: var(--space-lg);
+}
+
+/* Vote button */
+.gameplay-vote-btn:not(:disabled) {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@media (max-width: 480px) {
+  .gameplay-imposter-title {
+    font-size: 2rem;
+  }
+  .gameplay-word {
+    font-size: 2rem;
+  }
+}

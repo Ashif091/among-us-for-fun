@@ -1,0 +1,75 @@
+/* ─── Voting ─────────────────────────────────────────────────── */
+.voting-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.voting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Progress Bar */
+.voting-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.voting-progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.voting-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.voting-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-danger), var(--color-accent));
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px var(--color-danger-glow);
+}
+
+/* Player list */
+.voting-players {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Confirm button */
+.voting-confirm-btn:not(:disabled) {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Done state */
+.voting-done {
+  padding: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  text-align: center;
+}
+
+.voting-done-icon {
+  font-size: 3rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.voting-done-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-sm);
+}

@@ -1,0 +1,9 @@
+{
+  "name": "among-us-game",
+  "version": "1.0.0",
+  "description": "Among Us word game launcher",
+  "private": true,
+  "scripts": {
+    "start": "node start.js"
+  }
+}

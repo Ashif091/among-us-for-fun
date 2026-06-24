@@ -1,0 +1,124 @@
+/* ─── Lobby ──────────────────────────────────────────────────── */
+.lobby-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.lobby-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Config */
+.lobby-config {
+  padding: var(--space-lg);
+}
+
+.lobby-category-info {
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Players */
+.lobby-players {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.lobby-players-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lobby-players-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* Allow dropdowns to overflow the list boundary */
+  overflow: visible;
+}
+
+/* Start button glow */
+.lobby-start-btn:not(:disabled) {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Waiting indicator */
+.lobby-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+}
+
+.lobby-waiting-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.lobby-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.lobby-dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.lobby-dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Room Code Editing */
+.room-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.edit-room-code-btn {
+  font-size: 0.85rem;
+  color: var(--color-danger);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.edit-room-code-btn:hover {
+  text-shadow: 0 0 8px var(--color-danger);
+  transform: translateY(-1px);
+}
+
+.room-code-edit-form {
+  padding: var(--space-md);
+  width: 100%;
+}
+
+.room-code-edit-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-xs);
+}
+
+.room-code-input {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  flex: 1;
+}
