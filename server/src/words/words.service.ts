@@ -21,18 +21,7 @@ export class WordsService {
       this.logger.log(`"anything" category chosen. Redirected to random category: "${normalizedCategory}"`);
     }
 
-    // Try Datamuse API first
-    try {
-      const word = await this.fetchFromDatamuse(normalizedCategory);
-      if (word) {
-        this.logger.log(`Datamuse returned: "${word}" for category "${normalizedCategory}"`);
-        return word;
-      }
-    } catch (error) {
-      this.logger.warn(`Datamuse API failed for "${normalizedCategory}": ${error.message}`);
-    }
-
-    // Fallback to local word lists
+    // Directly return from curated local word list
     return this.getFromLocalList(normalizedCategory);
   }
 
