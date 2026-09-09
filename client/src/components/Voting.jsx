@@ -12,7 +12,8 @@ export default function Voting() {
 
   const hasVoted = currentPlayer?.hasVoted || hasConfirmed;
   const otherPlayers = room.players.filter(p => p.id !== playerId);
-  const progress = totalCount > 0 ? (votedCount / totalCount) * 100 : 0;
+  const totalRoomPlayers = room.players.length;
+  const progress = totalRoomPlayers > 0 ? (votedCount / totalRoomPlayers) * 100 : 0;
 
   const handleSelect = (id) => {
     if (hasVoted) return;
@@ -49,7 +50,7 @@ export default function Voting() {
             <span className="text-secondary" style={{ fontSize: '0.85rem' }}>
               Votes cast
             </span>
-            <span className="title-sm">{votedCount} / {totalCount}</span>
+            <span className="title-sm">{votedCount} / {totalRoomPlayers}</span>
           </div>
           <div className="voting-progress-bar">
             <div

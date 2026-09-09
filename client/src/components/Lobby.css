@@ -85,9 +85,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   width: 100%;
 }
+
+/* Share button */
+.lobby-share-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1.5px solid rgba(74, 158, 255, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--color-info);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.lobby-share-btn:hover {
+  background: rgba(74, 158, 255, 0.22);
+  border-color: rgba(74, 158, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+.lobby-share-btn:active {
+  transform: scale(0.98);
+}
+
 
 .edit-room-code-btn {
   font-size: 0.85rem;
@@ -122,3 +152,49 @@
   text-transform: uppercase;
   flex: 1;
 }
+
+/* ─── Host Settings Summary Pill ─────────────────────────────── */
+.lobby-settings-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 10px 14px !important;
+  cursor: pointer;
+  border: 1px solid var(--glass-border) !important;
+  background: var(--glass-bg) !important;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.lobby-settings-summary:hover {
+  background: rgba(74,158,255,0.08) !important;
+  border-color: rgba(74,158,255,0.3) !important;
+}
+
+.lobby-settings-summary-item {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.lobby-settings-divider {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.lobby-settings-summary-edit {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--color-info);
+  font-weight: 600;
+}
+
+/* Settings button in header */
+.lobby-settings-btn {
+  font-size: 0.8rem !important;
+}
+

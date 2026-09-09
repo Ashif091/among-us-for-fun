@@ -1,6 +1,14 @@
 /** Game state types */
 export type GameState = 'lobby' | 'playing' | 'voting' | 'results';
 
+/** Room settings configurable by the host */
+export interface RoomSettings {
+  maxPlayers: number;       // 3-25, default 15
+  correctScore: number;     // Score gained for correct vote, default +1
+  wrongScore: number;       // Score penalty for wrong vote, default -1
+  votePenaltyMultiplier: number; // Score deducted per vote received (for non-imposters), default 0
+}
+
 /** Player in a game room */
 export interface Player {
   id: string;
@@ -29,6 +37,8 @@ export interface GameRoom {
   usedImposterIds: Set<string>;
   /** Track words used this session to avoid repeats */
   usedWords: Set<string>;
+  /** Configurable room settings */
+  settings: RoomSettings;
 }
 
 /** Payload for creating a room */
@@ -52,7 +62,11 @@ export interface RejoinRoomDto {
 /** Payload for updating room config */
 export interface UpdateConfigDto {
   roomCode: string;
-  category: string;
+  category?: string;
+  maxPlayers?: number;
+  correctScore?: number;
+  wrongScore?: number;
+  votePenaltyMultiplier?: number;
 }
 
 /** Payload for starting the game */
@@ -83,6 +97,11 @@ export interface ChangeRoomCodeDto {
   newRoomCode: string;
 }
 
+/** Payload for resetting scores */
+export interface ResetScoresDto {
+  roomCode: string;
+}
+
 /** Player data sent to clients (serialized) */
 export interface PlayerData {
   id: string;
@@ -101,6 +120,7 @@ export interface RoomData {
   category: string;
   players: PlayerData[];
   roundNumber: number;
+  settings: RoomSettings;
 }
 
 /** Game start data sent to individual players */

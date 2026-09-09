@@ -7,12 +7,13 @@ export default function RulesModal() {
   return (
     <>
       <button
-        className="btn btn-ghost btn-icon rules-trigger"
+        className="btn rules-trigger"
         onClick={() => setIsOpen(true)}
         title="Game Rules & Scoring"
         id="rules-btn"
       >
-        ℹ️
+        <span className="rules-trigger-icon">ℹ️</span>
+        <span className="rules-trigger-label">Rules</span>
       </button>
 
       {isOpen && (

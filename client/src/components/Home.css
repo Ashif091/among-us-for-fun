@@ -68,3 +68,18 @@
   text-align: center;
   margin-top: var(--space-md);
 }
+
+/* Invite link banner */
+.home-invite-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(22, 199, 154, 0.1);
+  border: 1px solid rgba(22, 199, 154, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--color-success);
+  font-size: 0.85rem;
+  animation: fadeIn 0.4s ease;
+}
+

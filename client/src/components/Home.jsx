@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext.jsx';
 import { loadSession } from '../utils/constants.js';
 import './Home.css';
@@ -11,6 +11,18 @@ export default function Home() {
   const savedName = loadSession()?.playerName || '';
   const [name, setName] = useState(savedName);
   const [roomCode, setRoomCode] = useState('');
+
+  // Auto-detect ?rm=ROOMCODE from shared links
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const rm = params.get('rm');
+    if (rm && rm.trim().length >= 4) {
+      setRoomCode(rm.trim().toUpperCase().slice(0, 6));
+      setMode('join');
+      // Clean the URL so it doesn't persist after joining
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -113,6 +125,14 @@ export default function Home() {
         {mode === 'join' && (
           <form className="home-form glass-card animate-slide-up" onSubmit={handleJoin}>
             <h2 className="title-md">Join a Room</h2>
+
+            {/* Invite banner shown when room code came from a share link */}
+            {roomCode && (
+              <div className="home-invite-banner">
+                🔗 Joining room <strong>{roomCode}</strong> via invite link
+              </div>
+            )}
+
             <div className="input-group">
               <label className="input-label" htmlFor="join-name">Your Name</label>
               <input
@@ -157,6 +177,7 @@ export default function Home() {
             </button>
           </form>
         )}
+
 
         {/* Footer */}
         <div className="home-footer text-muted" style={{ fontSize: '0.75rem' }}>

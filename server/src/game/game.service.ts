@@ -68,6 +68,12 @@ export class GameService {
       roundNumber: 0,
       usedImposterIds: new Set(),
       usedWords: new Set(),
+      settings: {
+        maxPlayers: 15,
+        correctScore: 1,
+        wrongScore: -1,
+        votePenaltyMultiplier: 0,
+      },
     };
 
     this.rooms.set(code, room);
@@ -90,8 +96,9 @@ export class GameService {
       return { error: 'Game already in progress. Wait for the next round.' };
     }
 
-    if (room.players.size >= 15) {
-      return { error: 'Room is full (max 15 players).' };
+    const maxPlayers = room.settings?.maxPlayers ?? 15;
+    if (room.players.size >= maxPlayers) {
+      return { error: `Room is full (max ${maxPlayers} players).` };
     }
 
     // Check for duplicate names
@@ -220,11 +227,17 @@ export class GameService {
 
   // ─── Game Config ──────────────────────────────────────────────
 
-  /** Update room category */
+  /** Update room config (category and/or settings) */
   updateConfig(
     roomCode: string,
-    category: string,
     socketId: string,
+    options: {
+      category?: string;
+      maxPlayers?: number;
+      correctScore?: number;
+      wrongScore?: number;
+      votePenaltyMultiplier?: number;
+    },
   ): RoomData | { error: string } {
     const room = this.rooms.get(roomCode.toUpperCase());
     if (!room) return { error: 'Room not found.' };
@@ -238,8 +251,46 @@ export class GameService {
       return { error: 'Can only change settings in the lobby.' };
     }
 
-    room.category = category.toLowerCase();
-    this.logger.log(`Room ${roomCode} category set to "${category}"`);
+    if (options.category !== undefined) {
+      room.category = options.category.toLowerCase();
+      this.logger.log(`Room ${roomCode} category set to "${options.category}"`);
+    }
+    if (options.maxPlayers !== undefined) {
+      const clamped = Math.max(3, Math.min(25, Math.floor(options.maxPlayers)));
+      room.settings.maxPlayers = clamped;
+      this.logger.log(`Room ${roomCode} maxPlayers set to ${clamped}`);
+    }
+    if (options.correctScore !== undefined) {
+      room.settings.correctScore = options.correctScore;
+    }
+    if (options.wrongScore !== undefined) {
+      room.settings.wrongScore = options.wrongScore;
+    }
+    if (options.votePenaltyMultiplier !== undefined) {
+      room.settings.votePenaltyMultiplier = options.votePenaltyMultiplier;
+    }
+
+    return this.serializeRoom(room);
+  }
+
+  /** Reset all player scores to 0 (host only) */
+  resetScores(
+    roomCode: string,
+    socketId: string,
+  ): RoomData | { error: string } {
+    const room = this.rooms.get(roomCode.toUpperCase());
+    if (!room) return { error: 'Room not found.' };
+
+    const mapping = this.socketToPlayer.get(socketId);
+    if (!mapping || room.hostId !== mapping.playerId) {
+      return { error: 'Only the host can reset scores.' };
+    }
+
+    for (const [, player] of room.players) {
+      player.score = 0;
+    }
+
+    this.logger.log(`Scores reset in room ${roomCode}`);
     return this.serializeRoom(room);
   }
 
@@ -428,21 +479,23 @@ export class GameService {
     room.votes.set(mapping.playerId, suspectedPlayerId);
     voter.hasVoted = true;
 
-    // Count votes from online players only
+    // Count votes from online players only (for allVoted check)
     const onlinePlayers = Array.from(room.players.values()).filter((p) => p.isOnline);
     const votedCount = onlinePlayers.filter((p) => p.hasVoted).length;
     const totalCount = onlinePlayers.length;
     const allVoted = votedCount >= totalCount;
+    // Total players in room (includes offline) — for display purposes
+    const totalPlayersInRoom = room.players.size;
 
     this.logger.log(
-      `"${voter.name}" voted in room ${roomCode} (${votedCount}/${totalCount})`,
+      `"${voter.name}" voted in room ${roomCode} (${votedCount}/${totalCount} online, ${totalPlayersInRoom} total)`,
     );
 
     return {
       room: this.serializeRoom(room),
       allVoted,
       votedCount,
-      totalCount,
+      totalCount: totalPlayersInRoom,
     };
   }
 
@@ -489,11 +542,13 @@ export class GameService {
     }
     // else: imposter didn't get majority → imposter wins
 
+    // Load scoring settings
+    const { correctScore, wrongScore, votePenaltyMultiplier } = room.settings;
+
     // Calculate score changes
     const scoreChanges: Record<string, number> = {};
 
     // Imposter scoring
-    const imposter = room.players.get(room.imposterId);
     if (imposterCaught) {
       scoreChanges[room.imposterId] = -imposterVotes;
     } else if (isDraw) {
@@ -507,26 +562,55 @@ export class GameService {
       if (voterId === room.imposterId) continue; // imposter's score handled above
 
       let change = 0;
-      // +1 for correct guess
+      // Correct vote
       if (suspectedId === room.imposterId) {
-        change += 1;
+        change += correctScore;
+      } else {
+        // Wrong vote (not catching imposter)
+        change += wrongScore;
       }
-      // -1 if imposter wins
+
+      // Voted for wrong person AND imposter wins → no extra penalty (wrongScore already applied)
+      // But if imposter wins and player voted correctly, offset: remove correctScore, apply wrongScore
       if (!imposterCaught && !isDraw) {
-        change -= 1;
+        if (suspectedId === room.imposterId) {
+          // Correct guess but imposter still wins overall — net 0 (cancel out correctScore, add wrongScore)
+          change = wrongScore + correctScore; // e.g. -1+1 = 0
+        }
+        // wrong voters: already got wrongScore, no change
+      } else {
+        if (suspectedId !== room.imposterId) {
+          // Wrong voter in a round imposter was caught or draw — use wrongScore
+          // (already applied above)
+        }
       }
+
+      // Vote penalty multiplier: deduct per vote received
+      if (votePenaltyMultiplier !== 0) {
+        const votesReceivedByThisVoter = voteCount[voterId] || 0;
+        change -= votesReceivedByThisVoter * votePenaltyMultiplier;
+      }
+
       scoreChanges[voterId] = change;
     }
 
-    // Offline players who didn't vote get -1 if imposter wins
+    // Offline players who didn't vote
     for (const [playerId, player] of room.players) {
       if (playerId === room.imposterId) continue;
       if (!room.votes.has(playerId)) {
+        let change = 0;
         if (!imposterCaught && !isDraw) {
-          scoreChanges[playerId] = -1;
-        } else {
-          scoreChanges[playerId] = 0;
+          change = wrongScore; // they also effectively "failed"
         }
+        // Apply vote penalty multiplier for votes they received
+        if (votePenaltyMultiplier !== 0) {
+          const votesReceived = voteCount[playerId] || 0;
+          change -= votesReceived * votePenaltyMultiplier;
+        }
+        scoreChanges[playerId] = change;
+      } else {
+        // They voted — apply vote penalty multiplier if not already processed
+        // (already handled in the loop above)
       }
     }
 
@@ -827,6 +911,7 @@ export class GameService {
       category: room.category,
       players,
       roundNumber: room.roundNumber,
+      settings: { ...room.settings },
     };
   }
 

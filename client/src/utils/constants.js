@@ -93,3 +93,42 @@ export function formatScoreChange(change) {
   if (change < 0) return `${change}`;
   return '0';
 }
+
+/** Base URL for sharing — reads from Vite env or falls back to production URL */
+const APP_BASE_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_APP_URL) ||
+  'https://among-us-for-fun.vercel.app';
+
+/** Build a shareable room link */
+export function getRoomShareUrl(roomCode) {
+  return `${APP_BASE_URL}?rm=${roomCode}`;
+}
+
+/** Trigger the native share sheet (Web Share API) or fall back to clipboard copy */
+export async function shareRoom(roomCode, onCopied) {
+  const url = getRoomShareUrl(roomCode);
+  const text = `Join my imposter game! Room code: ${roomCode}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '🕵️ Find the Imposter', text, url });
+      return 'shared';
+    } catch (err) {
+      // User cancelled — not an error
+      if (err.name !== 'AbortError') console.warn('Share failed:', err);
+      return 'cancelled';
+    }
+  }
+
+  // Fallback: copy to clipboard
+  try {
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    if (onCopied) onCopied();
+    return 'copied';
+  } catch {
+    // Last resort: prompt with the URL
+    window.prompt('Copy this link to share:', url);
+    return 'prompted';
+  }
+}
+

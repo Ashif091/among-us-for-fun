@@ -97,7 +97,7 @@ function gameReducer(state, action) {
         screen: 'voting',
         room: action.payload.room,
         votedCount: 0,
-        totalCount: action.payload.room.players.filter(p => p.isOnline).length,
+        totalCount: action.payload.room.players.length, // total room players
       };
 
     case 'VOTE_UPDATE':
@@ -217,6 +217,10 @@ export function GameProvider({ children }) {
       'config-updated': (data) => {
         dispatch({ type: 'CONFIG_UPDATED', payload: data });
       },
+      'scores-reset': (data) => {
+        dispatch({ type: 'SET_ROOM', payload: data.room });
+        dispatch({ type: 'SET_TOAST', payload: { type: 'info', message: 'Scoreboard has been reset!' } });
+      },
 
       'game-started': (data) => {
         dispatch({ type: 'GAME_STARTED', payload: data });
@@ -235,9 +239,6 @@ export function GameProvider({ children }) {
       },
       'kicked': () => {
         dispatch({ type: 'KICKED' });
-      },
-      'rejoin-failed': () => {
-        dispatch({ type: 'REJOIN_FAILED' });
       },
       'error': (data) => {
         dispatch({ type: 'SET_TOAST', payload: { type: 'error', message: data.message } });
@@ -285,9 +286,9 @@ export function GameProvider({ children }) {
     emit('join-room', { playerName, roomCode });
   }, [emit]);
 
-  const updateConfig = useCallback((category) => {
+  const updateConfig = useCallback((options) => {
     if (state.room) {
-      emit('update-config', { roomCode: state.room.code, category });
+      emit('update-config', { roomCode: state.room.code, ...options });
     }
   }, [emit, state.room]);
 
@@ -335,6 +336,12 @@ export function GameProvider({ children }) {
     dispatch({ type: 'RESET' });
   }, [emit, state.room]);
 
+  const resetScores = useCallback(() => {
+    if (state.room) {
+      emit('reset-scores', { roomCode: state.room.code });
+    }
+  }, [emit, state.room]);
+
   const clearToast = useCallback(() => {
     dispatch({ type: 'CLEAR_TOAST' });
   }, []);
@@ -362,6 +369,7 @@ export function GameProvider({ children }) {
     restartGame,
     kickPlayer,
     leaveRoom,
+    resetScores,
     clearToast,
   };
 

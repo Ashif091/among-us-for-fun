@@ -20,6 +20,7 @@ import {
   RoomCodeDto,
   KickPlayerDto,
   ChangeRoomCodeDto,
+  ResetScoresDto,
 } from './dto/game.dto';
 
 @WebSocketGateway({
@@ -208,8 +209,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const result = this.gameService.updateConfig(
       data.roomCode,
-      data.category,
       client.id,
+      {
+        category: data.category,
+        maxPlayers: data.maxPlayers,
+        correctScore: data.correctScore,
+        wrongScore: data.wrongScore,
+        votePenaltyMultiplier: data.votePenaltyMultiplier,
+      },
     );
 
     if ('error' in result) {
@@ -218,6 +225,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     this.server.to(data.roomCode).emit('config-updated', { room: result });
+  }
+
+  @SubscribeMessage('reset-scores')
+  handleResetScores(
+    @MessageBody() data: ResetScoresDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const result = this.gameService.resetScores(data.roomCode, client.id);
+
+    if ('error' in result) {
+      client.emit('error', { message: result.error });
+      return;
+    }
+
+    this.server.to(data.roomCode).emit('scores-reset', { room: result });
   }
 
 
