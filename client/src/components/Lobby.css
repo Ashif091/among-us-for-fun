@@ -89,35 +89,37 @@
   width: 100%;
 }
 
-/* Share button */
+/* Share button - Fixed 38px circle */
 .lobby-share-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: rgba(74, 158, 255, 0.12);
-  border: 1.5px solid rgba(74, 158, 255, 0.35);
-  border-radius: var(--radius-md);
-  color: var(--color-info);
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(74, 158, 255, 0.15) !important;
+  border: 1.5px solid rgba(74, 158, 255, 0.4) !important;
+  color: #4a9eff !important;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease;
 }
 
 .lobby-share-btn:hover {
-  background: rgba(74, 158, 255, 0.22);
-  border-color: rgba(74, 158, 255, 0.6);
+  background: rgba(74, 158, 255, 0.3) !important;
+  border-color: rgba(74, 158, 255, 0.65) !important;
   transform: translateY(-1px);
 }
 
 .lobby-share-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.92);
 }
-
 
 .edit-room-code-btn {
   font-size: 0.85rem;
@@ -153,48 +155,16 @@
   flex: 1;
 }
 
-/* ─── Host Settings Summary Pill ─────────────────────────────── */
-.lobby-settings-summary {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  padding: 10px 14px !important;
-  cursor: pointer;
-  border: 1px solid var(--glass-border) !important;
-  background: var(--glass-bg) !important;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  text-align: left;
-}
-
-.lobby-settings-summary:hover {
-  background: rgba(74,158,255,0.08) !important;
-  border-color: rgba(74,158,255,0.3) !important;
-}
-
-.lobby-settings-summary-item {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.82rem;
-}
-
-.lobby-settings-divider {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.lobby-settings-summary-edit {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: var(--color-info);
-  font-weight: 600;
-}
-
 /* Settings button in header */
 .lobby-settings-btn {
   font-size: 0.8rem !important;
 }
+
+@media (max-width: 480px) {
+  .lobby-header .title-lg,
+  .lobby-header .title-md {
+    font-size: 1.2rem !important;
+  }
+}
+
 

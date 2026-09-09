@@ -297,3 +297,32 @@
 .btn-danger:hover {
   background: #e03030 !important;
 }
+
+@media (max-width: 480px) {
+  .host-settings-modal {
+    padding: 16px 14px !important;
+    max-height: 88dvh;
+    border-radius: 16px !important;
+  }
+  .hs-score-row {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .hs-score-label {
+    font-size: 0.8rem;
+  }
+  .hs-score-sublabel {
+    font-size: 0.7rem;
+  }
+  .hs-number-input {
+    width: 46px;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+  }
+  .hs-stepper {
+    width: 26px;
+    height: 26px;
+    font-size: 0.9rem;
+  }
+}
+

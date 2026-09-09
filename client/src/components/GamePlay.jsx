@@ -1,6 +1,7 @@
 import { useGame } from '../context/GameContext.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
 import PlayerCard from './PlayerCard.jsx';
+import ScratchCard from './ScratchCard.jsx';
 import { getCategoryEmoji, getCategoryLabel } from '../utils/constants.js';
 import './GamePlay.css';
 
@@ -32,27 +33,9 @@ export default function GamePlay() {
           </button>
         </div>
 
-        {/* Word / Imposter Reveal */}
-        <div className={`gameplay-reveal glass-card ${gameData.isImposter ? 'gameplay-reveal-imposter' : 'gameplay-reveal-word'}`}>
-          {gameData.isImposter ? (
-            <>
-              <div className="gameplay-imposter-icon">🔴</div>
-              <div className="gameplay-imposter-text">YOU ARE THE</div>
-              <div className="gameplay-imposter-title">IMPOSTER</div>
-              <div className="gameplay-imposter-hint">
-                You don't know the word. Blend in and don't get caught!
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="gameplay-word-label">The secret word is</div>
-              <div className="gameplay-word">{gameData.word}</div>
-              <div className="gameplay-word-hint">
-                Don't let the imposter figure out the word!
-              </div>
-            </>
-          )}
-        </div>
+        {/* Interactive Scratch Card Reveal */}
+        <ScratchCard isImposter={gameData.isImposter} word={gameData.word} />
+
 
         {/* Word Confirm / Read check button */}
         {!hasConfirmed ? (

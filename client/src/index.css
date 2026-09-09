@@ -1,6 +1,8 @@
+@import "tailwindcss";
+
 /* ═══════════════════════════════════════════════════════════════
    FIND THE IMPOSTER — Global Design System
-   Premium dark theme with glassmorphism and neon accents
+   Premium dark theme with Tailwind CSS v4, glassmorphism and neon accents
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── CSS Variables (Design Tokens) ──────────────────────────── */

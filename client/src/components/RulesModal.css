@@ -1,50 +1,124 @@
-/* ─── Rules Modal ────────────────────────────────────────────── */
+/* ─── Info / Rules Trigger ────────────────────────────────────────────── */
+.info-trigger,
 .rules-trigger {
-  position: fixed;
-  top: var(--space-md);
-  right: var(--space-md);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px 8px 10px;
+  position: fixed !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 6px 12px !important;
+  height: 34px !important;
   background: rgba(74, 158, 255, 0.18) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
   border: 1.5px solid rgba(74, 158, 255, 0.45) !important;
   border-radius: var(--radius-full) !important;
   color: var(--text-primary) !important;
-  font-weight: 600;
-  font-size: 0.82rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  letter-spacing: 0.03em !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
 }
 
+.info-trigger:hover,
 .rules-trigger:hover {
-  background: rgba(74, 158, 255, 0.3) !important;
-  border-color: rgba(74, 158, 255, 0.65) !important;
-  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.25);
-  transform: translateY(-1px);
+  background: rgba(74, 158, 255, 0.32) !important;
+  border-color: rgba(74, 158, 255, 0.7) !important;
+  box-shadow: 0 4px 18px rgba(74, 158, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
 }
 
+.info-trigger-icon,
 .rules-trigger-icon {
-  font-size: 1.1rem;
-  line-height: 1;
+  color: #4a9eff !important;
+  flex-shrink: 0 !important;
 }
 
+.info-trigger-label,
 .rules-trigger-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: rgba(160, 200, 255, 1);
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: #a0c8ff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+@media (max-width: 600px) {
+  .info-trigger,
+  .rules-trigger {
+    top: 10px !important;
+    right: 10px !important;
+    height: 30px !important;
+    padding: 4px 10px !important;
+    font-size: 0.72rem !important;
+    gap: 4px !important;
+  }
+}
+
+/* ─── Room Configuration Display Card ──────────────────────────────── */
+.room-info-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: var(--space-lg);
+}
+
+.room-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.room-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.room-info-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.room-info-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
+}
+
+.room-info-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.room-info-subgrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .rules-modal {
   position: relative;
   padding: var(--space-xl) !important;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .rules-section {
@@ -91,3 +165,15 @@
   gap: var(--space-sm);
   flex-wrap: wrap;
 }
+
+@media (max-width: 480px) {
+  .rules-modal {
+    padding: 16px 14px !important;
+    max-height: 88vh;
+    border-radius: 16px !important;
+  }
+  .room-info-card {
+    padding: 10px;
+  }
+}
+

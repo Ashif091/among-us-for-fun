@@ -3,28 +3,18 @@ import { useGame } from '../context/GameContext.jsx';
 import PlayerCard from './PlayerCard.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
 import HostSettingsModal from './HostSettingsModal.jsx';
-import { getCategoryEmoji, getCategoryLabel, shareRoom } from '../utils/constants.js';
+import { shareRoom } from '../utils/constants.js';
+import { Settings, LogOut, ClipboardCopy, Check, Share2, Users, Zap } from 'lucide-react';
 import './Lobby.css';
 
 export default function Lobby() {
   const {
-    room, isHost, playerId, categories,
-    updateConfig, startGame, kickPlayer, leaveRoom,
+    room, isHost, playerId,
+    startGame, kickPlayer, leaveRoom,
   } = useGame();
   const [copied, setCopied] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shareStatus, setShareStatus] = useState(null); // null | 'copied' | 'shared'
-
-  const handleShare = async () => {
-    const result = await shareRoom(room.code, () => {
-      setShareStatus('copied');
-      setTimeout(() => setShareStatus(null), 2500);
-    });
-    if (result === 'shared') {
-      setShareStatus('shared');
-      setTimeout(() => setShareStatus(null), 2500);
-    }
-  };
 
   if (!room) return null;
 
@@ -49,6 +39,18 @@ export default function Lobby() {
     }
   };
 
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    const result = await shareRoom(room.code, () => {
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus(null), 2500);
+    });
+    if (result === 'shared') {
+      setShareStatus('shared');
+      setTimeout(() => setShareStatus(null), 2500);
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="lobby-content animate-fade-in">
@@ -62,84 +64,55 @@ export default function Lobby() {
                 onClick={() => setSettingsOpen(true)}
                 id="host-settings-btn"
                 title="Room Settings"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                ⚙️ Settings
+                <Settings size={16} /> Settings
               </button>
             )}
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => { if (window.confirm("Are you sure you want to leave the room?")) leaveRoom(); }}
               id="leave-room-btn"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              🚪 Leave
+              <LogOut size={16} /> Leave
             </button>
           </div>
         </div>
 
-        {/* Room Code + Share */}
+        {/* Room Code Display with Copy + Share button in one box */}
         <div className="room-code-container">
-          <div className="room-code-display animate-fade-in" onClick={handleCopyCode} id="copy-room-code">
+          <div
+            className="room-code-display animate-fade-in"
+            onClick={handleCopyCode}
+            id="copy-room-code"
+            style={{ width: '100%', justifyContent: 'space-between', padding: '14px 20px' }}
+          >
             <div>
               <div className="room-code-text">{room.code}</div>
-              <div className="room-code-copy">
-                {copied ? '✅ Copied!' : '📋 Tap to copy room code'}
+              <div className="room-code-copy" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {copied ? <Check size={14} className="text-success" /> : <ClipboardCopy size={14} />}
+                {copied ? 'Copied!' : 'Tap code to copy'}
               </div>
             </div>
+
+            <button
+              className="lobby-share-btn"
+              onClick={handleShare}
+              id="share-room-btn"
+              title="Share room link"
+            >
+              {shareStatus ? <Check size={18} /> : <Share2 size={18} />}
+            </button>
           </div>
-          <button
-            className="btn lobby-share-btn"
-            onClick={handleShare}
-            id="share-room-btn"
-            title="Share room link"
-          >
-            {shareStatus === 'copied' ? '✅ Link copied!' : shareStatus === 'shared' ? '✅ Shared!' : '🔗 Share'}
-          </button>
         </div>
-
-        {/* Room info summary for non-hosts */}
-        {!isHost && (
-          <div className="lobby-category-info glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span className="text-secondary" style={{ fontSize: '0.75rem' }}>Category</span>
-              <span className="title-sm">
-                {getCategoryEmoji(room.category)} {getCategoryLabel(room.category)}
-              </span>
-            </div>
-            {settings.maxPlayers && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', textAlign: 'right' }}>
-                <span className="text-secondary" style={{ fontSize: '0.75rem' }}>Max Players</span>
-                <span className="title-sm">👥 {settings.maxPlayers}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Host: quick settings summary pill */}
-        {isHost && (
-          <button
-            className="lobby-settings-summary glass-card"
-            onClick={() => setSettingsOpen(true)}
-            id="host-settings-summary-btn"
-          >
-            <span className="lobby-settings-summary-item">
-              {getCategoryEmoji(room.category)} {getCategoryLabel(room.category)}
-            </span>
-            <span className="lobby-settings-divider">·</span>
-            <span className="lobby-settings-summary-item">👥 Max {settings.maxPlayers ?? 15}</span>
-            <span className="lobby-settings-divider">·</span>
-            <span className="lobby-settings-summary-item">
-              ✅{settings.correctScore >= 0 ? '+' : ''}{settings.correctScore ?? 1}
-              &nbsp;/&nbsp;
-              ❌{settings.wrongScore >= 0 ? '+' : ''}{settings.wrongScore ?? -1}
-            </span>
-            <span className="lobby-settings-summary-edit">✏️ Edit</span>
-          </button>
-        )}
 
         {/* Players List */}
         <div className="lobby-players">
           <div className="lobby-players-header">
-            <span className="title-sm">Players ({onlinePlayers.length}/{room.players.length})</span>
+            <span className="title-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Users size={16} /> Players ({onlinePlayers.length}/{room.players.length})
+            </span>
             {onlinePlayers.length < 3 && (
               <span className="badge badge-warning">Need {3 - onlinePlayers.length} more</span>
             )}
@@ -171,9 +144,11 @@ export default function Lobby() {
             onClick={startGame}
             disabled={!canStart}
             id="start-game-btn"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
+            <Zap size={20} />
             {canStart
-              ? `⚡ Start Round ${room.roundNumber + 1}`
+              ? `Start Round ${room.roundNumber + 1}`
               : `Need at least 3 players (${onlinePlayers.length}/3)`
             }
           </button>
@@ -196,3 +171,4 @@ export default function Lobby() {
     </div>
   );
 }
+
