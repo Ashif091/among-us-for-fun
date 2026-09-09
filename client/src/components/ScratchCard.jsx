@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Sparkles, Eye } from 'lucide-react';
+import { Eye, ShieldAlert, Key } from 'lucide-react';
 import './ScratchCard.css';
 
 export default function ScratchCard({ isImposter, word, onRevealed }) {
@@ -16,7 +16,7 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
 
     const rect = container.getBoundingClientRect();
     const width = Math.floor(rect.width) || 300;
-    const height = Math.floor(rect.height) || 160;
+    const height = Math.floor(rect.height) || 200;
 
     canvas.width = width;
     canvas.height = height;
@@ -136,11 +136,13 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
 
   return (
     <div className="scratch-card-wrapper" ref={containerRef}>
-      {/* Underneath Revealed Content */}
+      {/* Underneath Revealed Content (Symmetric structure for both roles) */}
       <div className={`scratch-content ${isImposter ? 'scratch-imposter' : 'scratch-word'}`}>
         {isImposter ? (
           <>
-            <div className="gameplay-imposter-icon">🔴</div>
+            <div className="gameplay-imposter-icon">
+              <ShieldAlert size={36} className="text-danger" />
+            </div>
             <div className="gameplay-imposter-text">YOU ARE THE</div>
             <div className="gameplay-imposter-title">IMPOSTER</div>
             <div className="gameplay-imposter-hint">
@@ -149,7 +151,10 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
           </>
         ) : (
           <>
-            <div className="gameplay-word-label">The secret word is</div>
+            <div className="gameplay-imposter-icon">
+              <Key size={36} className="text-success" />
+            </div>
+            <div className="gameplay-word-label">YOUR SECRET WORD IS</div>
             <div className="gameplay-word">{word}</div>
             <div className="gameplay-word-hint">
               Don't let the imposter figure out the word!
