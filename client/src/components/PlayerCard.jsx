@@ -1,4 +1,6 @@
+import { useGame } from '../context/GameContext.jsx';
 import { getPlayerColor } from '../utils/constants.js';
+import { FastForward, Check, Clock, UserX, Crown } from 'lucide-react';
 import './PlayerCard.css';
 
 export default function PlayerCard({
@@ -15,7 +17,23 @@ export default function PlayerCard({
   onKick,
   canKick = false,
   roomState = null,
+  isLeader: isLeaderProp,
 }) {
+  let room;
+  try {
+    const game = useGame();
+    room = game?.room;
+  } catch (e) {
+    room = null;
+  }
+
+  // Calculate if player is 1st place (highest score > 0)
+  let isLeader = isLeaderProp;
+  if (isLeader === undefined && room && room.players && room.players.length > 0) {
+    const maxScore = Math.max(...room.players.map(p => p.score));
+    isLeader = player.score > 0 && player.score === maxScore;
+  }
+
   const color = getPlayerColor(index);
   const initials = player.name.charAt(0).toUpperCase();
 
@@ -26,7 +44,15 @@ export default function PlayerCard({
       style={{ '--player-color': color }}
     >
       {/* Avatar */}
-      <div className="player-avatar" style={{ background: player.isOnline ? color : 'var(--text-muted)' }}>
+      <div
+        className={`player-avatar ${isLeader ? 'player-avatar-leader' : ''}`}
+        style={{ background: player.isOnline ? (isLeader ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : color) : 'var(--text-muted)' }}
+      >
+        {isLeader && (
+          <div className="player-avatar-crown" title="1st Place Leader">
+            <Crown size={15} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+          </div>
+        )}
         <span className="player-avatar-text">{initials}</span>
         <span className={`player-status-indicator ${player.isOnline ? 'status-dot-online' : 'status-dot-offline'}`} />
       </div>
@@ -49,14 +75,28 @@ export default function PlayerCard({
 
       {/* Right side */}
       <div className="player-card-right">
-        {roomState === 'playing' && player.hasConfirmed && (
-          <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <span>✓</span> Ready
+        {roomState === 'playing' && player.hasSkipped && (
+          <span className="badge" style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+            <FastForward size={11} /> SKIPPED
           </span>
         )}
 
-        {showVoteBadge && player.hasVoted && (
-          <span className="badge badge-success">VOTED</span>
+        {roomState === 'playing' && player.hasConfirmed && (
+          <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.65rem', padding: '2px 6px' }}>
+            <Check size={11} /> Ready
+          </span>
+        )}
+
+        {showVoteBadge && (
+          player.hasVoted ? (
+            <span className="badge badge-success" style={{ fontSize: '0.65rem', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+              <Check size={11} /> VOTED
+            </span>
+          ) : player.isOnline ? (
+            <span className="badge badge-warning" style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(234,179,8,0.12)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+              <Clock size={11} /> PENDING
+            </span>
+          ) : null
         )}
 
         {scoreChange !== null && scoreChange !== undefined && (
@@ -72,7 +112,9 @@ export default function PlayerCard({
         )}
 
         {selected && (
-          <span className="player-selected-check">✓</span>
+          <span className="player-selected-check">
+            <Check size={14} />
+          </span>
         )}
 
         {canKick && onKick && (
@@ -86,8 +128,9 @@ export default function PlayerCard({
             }}
             title={`Remove ${player.name}`}
             id={`kick-btn-${player.id}`}
+            style={{ padding: '2px 6px' }}
           >
-            ❌
+            <UserX size={14} className="text-danger" />
           </button>
         )}
       </div>

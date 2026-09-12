@@ -24,6 +24,9 @@ const initialState = {
   votedCount: 0,
   totalCount: 0,
 
+  // Skip feature
+  skipData: { skipCount: 0, totalCount: 0, majorityReached: false },
+
   // Results
   results: null,
 
@@ -88,7 +91,19 @@ function gameReducer(state, action) {
         screen: 'playing',
         gameData: { word: action.payload.word, isImposter: action.payload.isImposter },
         room: action.payload.room,
+        skipData: { skipCount: 0, totalCount: 0, majorityReached: false },
         results: null,
+      };
+
+    case 'SKIP_VOTE_UPDATE':
+      return {
+        ...state,
+        room: action.payload.room,
+        skipData: {
+          skipCount: action.payload.skipCount,
+          totalCount: action.payload.totalCount,
+          majorityReached: action.payload.majorityReached,
+        },
       };
 
     case 'VOTING_STARTED':
@@ -213,6 +228,9 @@ export function GameProvider({ children }) {
       },
       'player-confirmed': (data) => {
         dispatch({ type: 'PLAYER_UPDATE', payload: data });
+      },
+      'skip-vote-update': (data) => {
+        dispatch({ type: 'SKIP_VOTE_UPDATE', payload: data });
       },
       'config-updated': (data) => {
         dispatch({ type: 'CONFIG_UPDATED', payload: data });
@@ -342,6 +360,24 @@ export function GameProvider({ children }) {
     }
   }, [emit, state.room]);
 
+  const voteSkip = useCallback(() => {
+    if (state.room) {
+      emit('vote-skip', { roomCode: state.room.code });
+    }
+  }, [emit, state.room]);
+
+  const confirmSkipRound = useCallback(() => {
+    if (state.room) {
+      emit('confirm-skip-round', { roomCode: state.room.code });
+    }
+  }, [emit, state.room]);
+
+  const cancelSkip = useCallback(() => {
+    if (state.room) {
+      emit('cancel-skip', { roomCode: state.room.code });
+    }
+  }, [emit, state.room]);
+
   const clearToast = useCallback(() => {
     dispatch({ type: 'CLEAR_TOAST' });
   }, []);
@@ -366,6 +402,9 @@ export function GameProvider({ children }) {
     startVoting,
     confirmRead,
     castVote,
+    voteSkip,
+    confirmSkipRound,
+    cancelSkip,
     restartGame,
     kickPlayer,
     leaveRoom,

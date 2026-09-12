@@ -54,24 +54,7 @@
   cursor: grabbing;
 }
 
-.scratch-reveal-btn {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 15;
-  font-size: 0.72rem !important;
-  padding: 4px 10px !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(6px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: var(--text-secondary) !important;
-  border-radius: 999px !important;
-}
 
-.scratch-reveal-btn:hover {
-  color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-}
 
 @media (max-width: 480px) {
   .scratch-card-wrapper {

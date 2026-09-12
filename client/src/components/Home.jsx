@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext.jsx';
-import { loadSession } from '../utils/constants.js';
+import { getSavedName, saveSavedName } from '../utils/constants.js';
 import './Home.css';
 
 export default function Home() {
   const { createRoom, joinRoom, isConnected } = useGame();
   const [mode, setMode] = useState(null); // null | 'create' | 'join'
 
-  // Pre-fill name from last session
-  const savedName = loadSession()?.playerName || '';
-  const [name, setName] = useState(savedName);
+  // Pre-fill name from localStorage
+  const [name, setName] = useState(() => getSavedName());
   const [roomCode, setRoomCode] = useState('');
 
   // Auto-detect ?rm=ROOMCODE from shared links
@@ -24,15 +23,22 @@ export default function Home() {
     }
   }, []);
 
+  const handleNameChange = (val) => {
+    setName(val);
+    saveSavedName(val);
+  };
+
   const handleCreate = (e) => {
     e.preventDefault();
     if (!name.trim()) return;
+    saveSavedName(name.trim());
     createRoom(name.trim());
   };
 
   const handleJoin = (e) => {
     e.preventDefault();
     if (!name.trim() || !roomCode.trim()) return;
+    saveSavedName(name.trim());
     joinRoom(name.trim(), roomCode.trim().toUpperCase());
   };
 
@@ -97,7 +103,7 @@ export default function Home() {
                 type="text"
                 placeholder="Enter your name..."
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => handleNameChange(e.target.value)}
                 maxLength={20}
                 autoFocus
                 autoComplete="off"
@@ -141,7 +147,7 @@ export default function Home() {
                 type="text"
                 placeholder="Enter your name..."
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => handleNameChange(e.target.value)}
                 maxLength={20}
                 autoFocus
                 autoComplete="off"

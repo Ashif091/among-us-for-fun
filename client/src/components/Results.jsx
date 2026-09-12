@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext.jsx';
 import PlayerCard from './PlayerCard.jsx';
+import { Crown, Trophy } from 'lucide-react';
 import './Results.css';
 
 export default function Results() {
@@ -169,25 +170,41 @@ export default function Results() {
 
         {/* ── Scoreboard ── */}
         <div className="results-scores glass-card">
-          <h3 className="title-sm" style={{ marginBottom: '12px' }}>🏆 Current Scores</h3>
+          <h3 className="title-sm" style={{ marginBottom: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Trophy size={16} className="text-warning" /> Current Scores
+          </h3>
           <div className="results-scores-list">
-            {displayRoom.players
-              .slice()
-              .sort((a, b) => b.score - a.score)
-              .map((player, rank) => (
-                <div key={player.id} className="results-score-row">
-                  <span className="results-score-rank">#{rank + 1}</span>
-                  <span className="results-score-name">
-                    {player.id === imposterId && '🔴 '}
-                    {player.name}
-                    {player.id === playerId && <span className="badge badge-info" style={{ fontSize: '0.6rem', marginLeft: '6px', padding: '1px 5px' }}>YOU</span>}
-                  </span>
-                  <span className={`results-score-val ${player.score > 0 ? 'score-positive' : player.score < 0 ? 'score-negative' : 'score-zero'}`}>
-                    {player.score > 0 ? '+' : ''}{player.score} pts
-                  </span>
-                </div>
-              ))
-            }
+            {(() => {
+              const maxScore = Math.max(...displayRoom.players.map(p => p.score), 0);
+              return displayRoom.players
+                .slice()
+                .sort((a, b) => b.score - a.score)
+                .map((player, rank) => {
+                  const isLeader = player.score > 0 && player.score === maxScore;
+                  return (
+                    <div
+                      key={player.id}
+                      className="results-score-row"
+                      style={{
+                        border: isLeader ? '1px solid rgba(251,191,36,0.4)' : undefined,
+                        background: isLeader ? 'rgba(251,191,36,0.06)' : undefined,
+                      }}
+                    >
+                      <span className="results-score-rank" style={{ color: isLeader ? '#fbbf24' : undefined, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                        {isLeader ? <Crown size={12} style={{ color: '#fbbf24', fill: '#fbbf24' }} /> : `#${rank + 1}`}
+                      </span>
+                      <span className="results-score-name" style={{ color: isLeader ? '#fbbf24' : undefined, fontWeight: isLeader ? 'bold' : 'normal' }}>
+                        {player.id === imposterId && '🔴 '}
+                        {player.name}
+                        {player.id === playerId && <span className="badge badge-info" style={{ fontSize: '0.6rem', marginLeft: '6px', padding: '1px 5px' }}>YOU</span>}
+                      </span>
+                      <span className={`results-score-val ${player.score > 0 ? 'score-positive' : player.score < 0 ? 'score-negative' : 'score-zero'}`}>
+                        {player.score > 0 ? '+' : ''}{player.score} pts
+                      </span>
+                    </div>
+                  );
+                });
+            })()}
           </div>
         </div>
 

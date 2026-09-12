@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { Eye, ShieldAlert, Key } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { ShieldAlert, Key } from 'lucide-react';
 import './ScratchCard.css';
 
-export default function ScratchCard({ isImposter, word, onRevealed }) {
+export default function ScratchCard({ isImposter, word, isConfirmed = false }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const [isRevealed, setIsRevealed] = useState(false);
   const [isScratching, setIsScratching] = useState(false);
   const isDrawing = useRef(false);
 
-  useEffect(() => {
+  const initCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -23,6 +22,9 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Reset composite operation to normal draw
+    ctx.globalCompositeOperation = 'source-over';
 
     // Draw metallic scratch foil
     const grad = ctx.createLinearGradient(0, 0, width, height);
@@ -47,7 +49,7 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
     ctx.font = '700 15px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('✨ SCRATCH ME TO REVEAL ✨', width / 2, height / 2 - 10);
+    ctx.fillText('SCRATCH TO REVEAL WORD', width / 2, height / 2 - 10);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '500 12px Outfit, sans-serif';
@@ -59,31 +61,13 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
     );
   }, []);
 
-  const checkScratchPercentage = () => {
-    const canvas = canvasRef.current;
-    if (!canvas || isRevealed) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const pixels = imageData.data;
-    let transparent = 0;
-
-    // Sample every 4th pixel for high performance
-    for (let i = 3; i < pixels.length; i += 16) {
-      if (pixels[i] === 0) transparent++;
-    }
-
-    const totalSampled = pixels.length / 16;
-    const ratio = transparent / totalSampled;
-
-    if (ratio > 0.35) {
-      setIsRevealed(true);
-      if (onRevealed) onRevealed();
-    }
-  };
+  // Initialize canvas on mount and whenever word or isConfirmed state updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initCanvas();
+    }, 30);
+    return () => clearTimeout(timer);
+  }, [initCanvas, word, isConfirmed]);
 
   const getCoordinates = (e) => {
     const canvas = canvasRef.current;
@@ -99,7 +83,7 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
 
   const scratch = (x, y) => {
     const canvas = canvasRef.current;
-    if (!canvas || isRevealed) return;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -107,8 +91,6 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
     ctx.beginPath();
     ctx.arc(x, y, 26, 0, Math.PI * 2);
     ctx.fill();
-
-    checkScratchPercentage();
   };
 
   const handleStart = (e) => {
@@ -119,7 +101,7 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
   };
 
   const handleMove = (e) => {
-    if (!isDrawing.current || isRevealed) return;
+    if (!isDrawing.current) return;
     const { x, y } = getCoordinates(e);
     scratch(x, y);
   };
@@ -129,14 +111,9 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
     setIsScratching(false);
   };
 
-  const handleRevealAll = () => {
-    setIsRevealed(true);
-    if (onRevealed) onRevealed();
-  };
-
   return (
     <div className="scratch-card-wrapper" ref={containerRef}>
-      {/* Underneath Revealed Content (Symmetric structure for both roles) */}
+      {/* Underneath Secret Content */}
       <div className={`scratch-content ${isImposter ? 'scratch-imposter' : 'scratch-word'}`}>
         {isImposter ? (
           <>
@@ -163,27 +140,18 @@ export default function ScratchCard({ isImposter, word, onRevealed }) {
         )}
       </div>
 
-      {/* Canvas Foil Overlay */}
-      {!isRevealed && (
-        <canvas
-          ref={canvasRef}
-          className={`scratch-canvas ${isScratching ? 'scratching' : ''}`}
-          onMouseDown={handleStart}
-          onMouseMove={handleMove}
-          onMouseUp={handleEnd}
-          onMouseLeave={handleEnd}
-          onTouchStart={handleStart}
-          onTouchMove={handleMove}
-          onTouchEnd={handleEnd}
-        />
-      )}
-
-      {/* Instant Reveal Button */}
-      {!isRevealed && (
-        <button className="btn btn-ghost btn-sm scratch-reveal-btn" onClick={handleRevealAll}>
-          <Eye size={14} /> Reveal
-        </button>
-      )}
+      {/* Canvas Foil Overlay (Always present for scratching & re-covering) */}
+      <canvas
+        ref={canvasRef}
+        className={`scratch-canvas ${isScratching ? 'scratching' : ''}`}
+        onMouseDown={handleStart}
+        onMouseMove={handleMove}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={handleStart}
+        onTouchMove={handleMove}
+        onTouchEnd={handleEnd}
+      />
     </div>
   );
 }

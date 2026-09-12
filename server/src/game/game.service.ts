@@ -53,6 +53,7 @@ export class GameService {
       score: 0,
       hasVoted: false,
       hasConfirmed: false,
+      hasSkipped: false,
       isOnline: true,
     };
 
@@ -117,6 +118,7 @@ export class GameService {
       score: 0,
       hasVoted: false,
       hasConfirmed: false,
+      hasSkipped: false,
       isOnline: true,
     };
 
@@ -371,11 +373,12 @@ export class GameService {
     room.currentWord = word;
     room.usedWords.add(word);
 
-    // Reset voting & confirmation state
+    // Reset voting & confirmation & skip state
     room.votes.clear();
     for (const [, player] of room.players) {
       player.hasVoted = false;
       player.hasConfirmed = false;
+      player.hasSkipped = false;
     }
 
     room.state = 'playing';
@@ -411,6 +414,96 @@ export class GameService {
     }
 
     return { assignments, room: this.serializeRoom(room) };
+  }
+
+  /** Vote to skip word */
+  voteSkip(
+    roomCode: string,
+    socketId: string,
+  ):
+    | { room: RoomData; skipCount: number; totalCount: number; majorityReached: boolean }
+    | { error: string } {
+    const room = this.rooms.get(roomCode.toUpperCase());
+    if (!room) return { error: 'Room not found.' };
+
+    const mapping = this.socketToPlayer.get(socketId);
+    if (!mapping) return { error: 'Player mapping not found.' };
+
+    const player = room.players.get(mapping.playerId);
+    if (!player) return { error: 'Player not found in room.' };
+
+    if (room.state !== 'playing') {
+      return { error: 'Word skip is only available during gameplay.' };
+    }
+
+    player.hasSkipped = !player.hasSkipped;
+
+    const onlinePlayers = Array.from(room.players.values()).filter((p) => p.isOnline);
+    const skipCount = onlinePlayers.filter((p) => p.hasSkipped).length;
+    const majorityCount = Math.floor(onlinePlayers.length / 2) + 1;
+    const majorityReached = skipCount >= majorityCount && onlinePlayers.length > 0;
+
+    this.logger.log(
+      `"${player.name}" ${player.hasSkipped ? 'voted to skip' : 'unskipped'} word in room ${roomCode} (${skipCount}/${onlinePlayers.length})`,
+    );
+
+    return {
+      room: this.serializeRoom(room),
+      skipCount,
+      totalCount: onlinePlayers.length,
+      majorityReached,
+    };
+  }
+
+  /** Cancel skip votes */
+  cancelSkip(
+    roomCode: string,
+    socketId: string,
+  ): { room: RoomData; totalCount: number } | { error: string } {
+    const room = this.rooms.get(roomCode.toUpperCase());
+    if (!room) return { error: 'Room not found.' };
+
+    const mapping = this.socketToPlayer.get(socketId);
+    if (!mapping || room.hostId !== mapping.playerId) {
+      return { error: 'Only the host can reset skip votes.' };
+    }
+
+    for (const [, player] of room.players) {
+      player.hasSkipped = false;
+    }
+
+    const onlinePlayers = Array.from(room.players.values()).filter((p) => p.isOnline);
+    return { room: this.serializeRoom(room), totalCount: onlinePlayers.length };
+  }
+
+  /** Skip round & start new round with new word */
+  async skipRound(
+    roomCode: string,
+    socketId?: string,
+  ): Promise<
+    | { assignments: Map<string, GameStartData>; room: RoomData }
+    | { error: string }
+  > {
+    const room = this.rooms.get(roomCode.toUpperCase());
+    if (!room) return { error: 'Room not found.' };
+
+    if (socketId) {
+      const mapping = this.socketToPlayer.get(socketId);
+      if (!mapping || room.hostId !== mapping.playerId) {
+        return { error: 'Only the host can skip the round.' };
+      }
+    }
+
+    if (room.state !== 'playing') {
+      return { error: 'Can only skip round during gameplay.' };
+    }
+
+    const hostPlayer = room.players.get(room.hostId);
+    const hostSocketId = hostPlayer?.socketId || socketId;
+    if (!hostSocketId) return { error: 'Host socket ID not available.' };
+
+    this.logger.log(`Host skipped round in room ${roomCode}. Generating new word...`);
+    return this.startGame(roomCode, hostSocketId);
   }
 
   /** Start voting phase */
@@ -894,6 +987,7 @@ export class GameService {
         score: player.score,
         hasVoted: player.hasVoted,
         hasConfirmed: player.hasConfirmed,
+        hasSkipped: player.hasSkipped || false,
         isOnline: player.isOnline,
       });
     }

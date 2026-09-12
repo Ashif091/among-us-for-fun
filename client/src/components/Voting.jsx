@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../context/GameContext.jsx';
 import PlayerCard from './PlayerCard.jsx';
+import { Vote, LogOut, CheckCircle2, Check, Clock, RotateCcw, Zap } from 'lucide-react';
 import './Voting.css';
 
 export default function Voting() {
@@ -32,15 +33,17 @@ export default function Voting() {
         {/* Header */}
         <div className="voting-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h2 className="title-lg" style={{ margin: 0 }}>🗳️ Vote</h2>
+            <Vote size={22} className="text-primary" />
+            <h2 className="title-lg" style={{ margin: 0 }}>Vote</h2>
             <span className="badge badge-danger">Round {room.roundNumber}</span>
           </div>
           <button 
             className="btn btn-ghost btn-sm" 
             onClick={() => { if (window.confirm("Are you sure you want to leave the room? This will abort the active round for everyone.")) leaveRoom(); }} 
             id="leave-room-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            🚪 Leave
+            <LogOut size={14} /> Leave
           </button>
         </div>
 
@@ -63,24 +66,52 @@ export default function Voting() {
         {/* Voting state */}
         {hasVoted ? (
           <div className="voting-done glass-card">
-            <div className="voting-done-icon">✅</div>
-            <div className="title-md">Vote Submitted!</div>
+            <div className="voting-done-icon">
+              <CheckCircle2 size={48} className="text-success" />
+            </div>
+            <div className="title-md" style={{ marginTop: '8px' }}>Vote Submitted!</div>
             <p className="text-secondary" style={{ fontSize: '0.9rem' }}>
-              Waiting for others to vote...
+              Waiting for remaining players to vote...
             </p>
             <div className="voting-done-dots">
               <span className="lobby-dot" />
               <span className="lobby-dot" />
               <span className="lobby-dot" />
             </div>
+
+            {/* Live Voting Progress Breakdown */}
+            <div style={{ marginTop: '20px', width: '100%', textAlign: 'left' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Live Player Status ({votedCount}/{totalRoomPlayers}):
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {room.players.map((p) => (
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontWeight: p.id === playerId ? 'bold' : 'normal', fontSize: '0.9rem' }}>
+                      {p.name} {p.id === playerId && <span className="text-muted" style={{ fontSize: '0.75rem' }}>(You)</span>}
+                    </span>
+                    {p.hasVoted ? (
+                      <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '2px 8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Check size={12} /> Voted
+                      </span>
+                    ) : (
+                      <span className="badge badge-warning" style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(234,179,8,0.12)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Clock size={12} /> Pending Vote
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {isHost && (
               <button
                 className="btn btn-secondary btn-full animate-fade-in"
                 onClick={restartGame}
-                style={{ marginTop: '24px' }}
+                style={{ marginTop: '24px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 id="host-abort-vote-btn"
               >
-                🔄 Restart (Back to Lobby)
+                <RotateCcw size={16} /> Restart (Back to Lobby)
               </button>
             )}
           </div>
@@ -117,19 +148,24 @@ export default function Voting() {
                 onClick={handleConfirmVote}
                 disabled={!selectedId}
                 id="confirm-vote-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                {selectedId
-                  ? `⚡ Vote for ${otherPlayers.find(p => p.id === selectedId)?.name}`
-                  : 'Select a player to vote'
-                }
+                {selectedId ? (
+                  <>
+                    <Zap size={18} /> Vote for {otherPlayers.find(p => p.id === selectedId)?.name}
+                  </>
+                ) : (
+                  'Select a player to vote'
+                )}
               </button>
               {isHost && (
                 <button
                   className="btn btn-secondary btn-full"
                   onClick={restartGame}
                   id="host-abort-vote-btn"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
-                  🔄 Restart (Back to Lobby)
+                  <RotateCcw size={16} /> Restart (Back to Lobby)
                 </button>
               )}
             </div>

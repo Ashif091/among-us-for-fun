@@ -42,7 +42,28 @@ export const STORAGE_KEYS = {
   PLAYER_ID: 'imposter_player_id',
   PLAYER_NAME: 'imposter_player_name',
   ROOM_CODE: 'imposter_room_code',
+  SAVED_USER_NAME: 'imposter_saved_user_name',
 };
+
+/** Save persistent user name for future sessions */
+export function saveSavedName(name) {
+  try {
+    if (name && name.trim()) {
+      localStorage.setItem(STORAGE_KEYS.SAVED_USER_NAME, name.trim());
+    }
+  } catch (e) {
+    console.warn('Failed to save user name:', e);
+  }
+}
+
+/** Get persistent user name */
+export function getSavedName() {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.SAVED_USER_NAME) || localStorage.getItem(STORAGE_KEYS.PLAYER_NAME) || '';
+  } catch (e) {
+    return '';
+  }
+}
 
 /** Save session to localStorage */
 export function saveSession(playerId, playerName, roomCode) {
@@ -50,6 +71,9 @@ export function saveSession(playerId, playerName, roomCode) {
     localStorage.setItem(STORAGE_KEYS.PLAYER_ID, playerId);
     localStorage.setItem(STORAGE_KEYS.PLAYER_NAME, playerName);
     localStorage.setItem(STORAGE_KEYS.ROOM_CODE, roomCode);
+    if (playerName && playerName.trim()) {
+      localStorage.setItem(STORAGE_KEYS.SAVED_USER_NAME, playerName.trim());
+    }
   } catch (e) {
     console.warn('Failed to save session:', e);
   }

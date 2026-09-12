@@ -303,6 +303,67 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('vote-skip')
+  handleVoteSkip(
+    @MessageBody() data: RoomCodeDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const result = this.gameService.voteSkip(data.roomCode, client.id);
+
+    if ('error' in result) {
+      client.emit('error', { message: result.error });
+      return;
+    }
+
+    this.server.to(data.roomCode).emit('skip-vote-update', {
+      room: result.room,
+      skipCount: result.skipCount,
+      totalCount: result.totalCount,
+      majorityReached: result.majorityReached,
+    });
+  }
+
+  @SubscribeMessage('cancel-skip')
+  handleCancelSkip(
+    @MessageBody() data: RoomCodeDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const result = this.gameService.cancelSkip(data.roomCode, client.id);
+
+    if ('error' in result) {
+      client.emit('error', { message: result.error });
+      return;
+    }
+
+    this.server.to(data.roomCode).emit('skip-vote-update', {
+      room: result.room,
+      skipCount: 0,
+      totalCount: result.totalCount,
+      majorityReached: false,
+    });
+  }
+
+  @SubscribeMessage('confirm-skip-round')
+  async handleConfirmSkipRound(
+    @MessageBody() data: RoomCodeDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const result = await this.gameService.skipRound(data.roomCode, client.id);
+
+    if ('error' in result) {
+      client.emit('error', { message: result.error });
+      return;
+    }
+
+    // Send new personalized game data to each player
+    for (const [socketId, gameData] of result.assignments) {
+      this.server.to(socketId).emit('game-started', gameData);
+    }
+    this.server.to(data.roomCode).emit('error', {
+      message: 'Word skipped by host! A new round has started.',
+    });
+  }
+
   @SubscribeMessage('cast-vote')
   handleCastVote(
     @MessageBody() data: CastVoteDto,

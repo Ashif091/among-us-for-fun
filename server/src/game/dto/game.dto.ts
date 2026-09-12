@@ -18,6 +18,7 @@ export interface Player {
   score: number;
   hasVoted: boolean;
   hasConfirmed: boolean;
+  hasSkipped: boolean;
   isOnline: boolean;
 }
 
@@ -110,6 +111,7 @@ export interface PlayerData {
   score: number;
   hasVoted: boolean;
   hasConfirmed: boolean;
+  hasSkipped: boolean;
   isOnline: boolean;
 }
 

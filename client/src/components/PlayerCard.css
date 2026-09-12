@@ -53,6 +53,30 @@
   flex-shrink: 0;
 }
 
+.player-avatar-leader {
+  box-shadow: 0 0 0 2.5px #fbbf24, 0 0 12px rgba(251, 191, 36, 0.6) !important;
+  border-radius: 50%;
+}
+
+.player-avatar-crown {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  animation: crownFloat 2s ease-in-out infinite alternate;
+}
+
+@keyframes crownFloat {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-2px);
+  }
+}
+
 .player-avatar-text {
   color: white;
   font-size: 1rem;
